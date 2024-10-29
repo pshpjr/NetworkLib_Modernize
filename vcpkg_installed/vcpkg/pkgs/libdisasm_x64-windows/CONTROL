@@ -1,8 +1,0 @@
-Package: libdisasm
-Version: 0.23
-Port-Version: 11
-Depends: vcpkg-cmake
-Architecture: x64-windows
-Multi-Arch: same
-Abi: 627056763247af5582039d7ee85f74978a554c22c7ab300900372a7550faa711
-Description: x86 Disassembler Library.

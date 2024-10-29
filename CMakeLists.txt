@@ -6,7 +6,6 @@ project(StaticLib)
 # Specify the required Boost components
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(unofficial-breakpad REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
 
 if(Boost_FOUND)
     # Include Boost headers

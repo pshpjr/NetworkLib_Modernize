@@ -1,8 +1,0 @@
-Package: breakpad
-Version: 2023-06-01
-Port-Version: 2
-Depends: atl, libdisasm, vcpkg-cmake, vcpkg-cmake-config
-Architecture: x64-windows
-Multi-Arch: same
-Abi: 493a7cddf0c0e6b8757dd5c07116ed2a7a13d742eec17b72f4212045159a0356
-Description: a set of client and server components which implement a crash-reporting system.

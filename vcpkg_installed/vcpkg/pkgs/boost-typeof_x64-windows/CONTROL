@@ -1,7 +1,0 @@
-Package: boost-typeof
-Version: 1.86.0
-Depends: boost-cmake, boost-config, boost-headers
-Architecture: x64-windows
-Multi-Arch: same
-Abi: 8dfeee6be8565541cb8e721dd341d8584dec8f056340caf0c4bfe2a233e8363c
-Description: Boost typeof module
