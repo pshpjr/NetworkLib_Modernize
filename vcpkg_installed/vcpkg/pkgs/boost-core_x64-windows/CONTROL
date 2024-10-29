@@ -1,0 +1,7 @@
+Package: boost-core
+Version: 1.86.0
+Depends: boost-assert, boost-cmake, boost-config, boost-headers, boost-static-assert, boost-throw-exception
+Architecture: x64-windows
+Multi-Arch: same
+Abi: f6dc78cd1bff47637fa94dadb5b26822e444568c76f4c29239825d76e89066ab
+Description: Boost core module

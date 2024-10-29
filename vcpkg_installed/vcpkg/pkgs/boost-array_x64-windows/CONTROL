@@ -1,0 +1,7 @@
+Package: boost-array
+Version: 1.86.0
+Depends: boost-assert, boost-cmake, boost-config, boost-core, boost-headers, boost-static-assert, boost-throw-exception
+Architecture: x64-windows
+Multi-Arch: same
+Abi: d644c109ca37d81eb8886ed5f56d779a64fabbb2201220fb2d101c0884d152f2
+Description: Boost array module

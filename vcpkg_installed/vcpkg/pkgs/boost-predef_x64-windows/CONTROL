@@ -1,0 +1,7 @@
+Package: boost-predef
+Version: 1.86.0
+Depends: boost-cmake, boost-config, boost-headers
+Architecture: x64-windows
+Multi-Arch: same
+Abi: ce29ff72c18e8f1aaa632c8dac82573d05a201a05b97ee35d56366f8bc3ccb2b
+Description: Boost predef module
