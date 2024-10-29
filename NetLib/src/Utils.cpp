@@ -6,10 +6,3 @@
 #include <ostream>
 
 
-void psh::Utils::ASSERT_CRASH(bool condition, const char* message)
-{
-	if (!condition)
-	{
-		abort();
-	}
-}

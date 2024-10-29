@@ -1,16 +1,23 @@
 # YourProject/tests/CMakeLists.txt
 
 
-# Å×½ºÆ® ½ÇÇà ÆÄÀÏ
+# ï¿½×½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 add_executable(tests
     main.cpp
 )
 
 
 
-# Å×½ºÆ® ´ë»ó¿¡ ¶óÀÌºê·¯¸® ¿¬°á
+# ï¿½×½ï¿½Æ® ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºê·¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 target_link_libraries(tests PRIVATE NetLib)
 
-# CTest µî·Ï
+enable_testing()
+
+find_package(GTest CONFIG REQUIRED)
+target_link_libraries(tests PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+
+add_test(AllTestsInMain tests)
+
+# CTest ï¿½ï¿½ï¿½
 #enable_testing()
 #add_test(NAME YourLibraryTests COMMAND tests)

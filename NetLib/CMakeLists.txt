@@ -5,7 +5,9 @@ cmake_minimum_required (VERSION 3.28)
 
 project(NetLib LANGUAGES CXX)
 
-add_library(NetLib STATIC)
+add_library(NetLib STATIC
+        src/RingBuffer.cpp
+        include/RingBuffer.h)
 
 target_sources(NetLib
    PRIVATE

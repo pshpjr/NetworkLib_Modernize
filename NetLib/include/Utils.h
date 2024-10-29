@@ -9,14 +9,22 @@
 #define UTILS_H
 
 //STL 헤더
-
+#include <cstdlib>
 //서드파티 헤더
 
 //프로젝트 헤더
 
-namespace psh::Utils
+namespace psh
 {
-	void ASSERT_CRASH(bool condition, const char* message = nullptr);
+	inline void AssertCrash(bool condition, const char* message = nullptr)
+	{
+#ifdef _DEBUG
+		if (!condition)
+		{
+			abort();
+		}
+#endif
+	}
 
 	template<typename T>
 	T& Singleton()

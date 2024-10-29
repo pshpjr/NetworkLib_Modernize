@@ -1,29 +1,33 @@
-﻿
-
 #include <iostream>
-#include "Allocator.h"
 
-#include "CrashDump.h"
-#include "boost/asio.hpp"
+#include "gtest/gtest.h"
 
-class Knight
+namespace
 {
-public:
-    Knight() { std::cout << "ctor" << '\n'; }
-    ~Knight() { std::cout << "dtor" << '\n'; }
+	class Test1 : public ::testing::Test
+	{
+	public:
 
-	void print() { std::cout << "print"<<hp << '\n'; }
-    int hp{ 0 };
-};
+	protected:
+		virtual void SetUp()
+		{
+			std::cout << "Setup" << std::endl;
+		}
 
-int main() {
-	psh::Utils::UseDump(L"./Dump");
+		virtual void TearDown()
+		{
+			std::cout << "TearDown" << std::endl;
+		}
+	};
 
-    std::cout << "애플리케이션이 정상적으로 실행됩니다.\n";
+	TEST_F(Test1, plus_p)
+	{
+		EXPECT_EQ(2, 1+1);
+	}
+} // namespace
 
-    int* ptr = nullptr;
-    *ptr = 42;  // 강제로 크래시 발생
-
-
-    return 0;
+int main(int argc, char** argv)
+{
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
 }
