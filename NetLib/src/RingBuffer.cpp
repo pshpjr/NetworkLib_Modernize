@@ -11,21 +11,21 @@ namespace psh::network {
 } // psh
 int psh::net_lib::RingBuffer::Size() const
 {
-    const int rear = GetIndex(_rear);
-    const int front = GetIndex(_front);
+    const int rear = GetIndex(rear_);
+    const int front = GetIndex(front_);
 
     if (rear >= front)
     {
         return rear - front;
     }
 
-    return BUFFER_SIZE - (front - rear);
+    return bufferSize_ - (front - rear);
 }
 
 int psh::net_lib::RingBuffer::DirectEnqueueSize() const
 {
-    const int rear = GetIndex(_rear);
-    const int front = GetIndex(_front);
+    const int rear = GetIndex(rear_);
+    const int front = GetIndex(front_);
 
     //front는 변할 수 있지만 rear는 변하지 않음.
     //가득 찬 상황
@@ -48,11 +48,11 @@ int psh::net_lib::RingBuffer::DirectEnqueueSize() const
         int result;
         if (front == 0)
         {
-            result = BUFFER_SIZE - rear - 1;
+            result = bufferSize_ - rear - 1;
         }
         else
         {
-            result = BUFFER_SIZE - rear;
+            result = bufferSize_ - rear;
         }
 
         AssertCrash(result > 0, "Out of Case");
@@ -67,18 +67,18 @@ int psh::net_lib::RingBuffer::DirectEnqueueSize() const
 
 int psh::net_lib::RingBuffer::DirectDequeueSize() const
 {
-    const int rear = GetIndex(_rear);
-    const int front = GetIndex(_front);
+    const int rear = GetIndex(rear_);
+    const int front = GetIndex(front_);
     if (rear >= front)
     {
         return rear - front;
     }
-    return BUFFER_SIZE - front;
+    return bufferSize_ - front;
 }
 
 unsigned int psh::net_lib::RingBuffer::Peek(char* dst, const unsigned int size) const
 {
-    const int front = GetIndex(_front);
+    const int front = GetIndex(front_);
     const unsigned int peekSize = size;
     //size는 늘어나기만 함.
     if (Size() < size)
@@ -89,14 +89,14 @@ unsigned int psh::net_lib::RingBuffer::Peek(char* dst, const unsigned int size) 
 
     if (DirectDequeueSize() >= peekSize)
     {
-        memcpy_s(dst, peekSize, &_buffer[front], peekSize);
+        memcpy_s(dst, peekSize, &buffer_[front], peekSize);
     }
     else
     {
         const int deqSize = DirectDequeueSize();
 
-        memcpy_s(dst, deqSize, &_buffer[front], deqSize);
-        memcpy_s(dst + deqSize, peekSize - deqSize, &_buffer[0], peekSize - deqSize);
+        memcpy_s(dst, deqSize, &buffer_[front], deqSize);
+        memcpy_s(dst + deqSize, peekSize - deqSize, &buffer_[0], peekSize - deqSize);
     }
 
     return peekSize;
@@ -120,7 +120,7 @@ int psh::net_lib::RingBuffer::Dequeue(int deqSize)
         size = Size();
     }
 
-    _front += size;
+    front_ += size;
 
 
     return size;

@@ -4,17 +4,17 @@
 
 namespace
 {
-	class Test1 : public ::testing::Test
+	class Test1 : public testing::Test
 	{
 	public:
 
 	protected:
-		virtual void SetUp()
+		void SetUp() override
 		{
 			std::cout << "Setup" << std::endl;
 		}
 
-		virtual void TearDown()
+		void TearDown() override
 		{
 			std::cout << "TearDown" << std::endl;
 		}
@@ -28,6 +28,6 @@ namespace
 
 int main(int argc, char** argv)
 {
-	::testing::InitGoogleTest(&argc, argv);
+	testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }

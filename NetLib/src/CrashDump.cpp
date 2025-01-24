@@ -1,8 +1,10 @@
-﻿#include "CrashDump.h"
+﻿// ReSharper disable CppParameterMayBeConstPtrOrRef
+#include "CrashDump.h"
 
+#include <atomic>
 #include <filesystem>
 #include <iostream>
-#include <atomic>
+#include <string>
 
 #ifdef _WIN32
 #include "client/windows/handler/exception_handler.h"
@@ -10,16 +12,17 @@
 #include "client/linux/handler/exception_handler.h"
 #endif
 
+
 class CrashDump
 {
 public:
-	CrashDump(const String& dumpPath = L"")
+	explicit CrashDump(const std::wstring& dumpPath)
 	{
 		std::filesystem::path path(dumpPath);
 
 		GenDir(path);
 #ifdef _WIN32
-		handler = std::make_unique<google_breakpad::ExceptionHandler>(
+		handler_ = std::make_unique<google_breakpad::ExceptionHandler>(
 			dumpPath, nullptr, DumpCallback, nullptr, google_breakpad::ExceptionHandler::HANDLER_ALL);
 
 #else
@@ -33,10 +36,13 @@ public:
 
 private:
 #ifdef _WIN32
-	static bool DumpCallback(const wchar_t* dump_path, const wchar_t* minidump_id, void* context,
+	static bool DumpCallback(const wchar_t* dumpPath, const wchar_t* minidumpId, void* context,
 	                         EXCEPTION_POINTERS* exinfo, MDRawAssertionInfo* assertion, bool succeeded)
 	{
-		wprintf(L"Dump path: %s\\%s.dmp\n", dump_path, minidump_id);
+		UNREFERENCED_PARAMETER(context);
+		UNREFERENCED_PARAMETER(exinfo);
+		UNREFERENCED_PARAMETER(assertion);
+		wprintf(L"Dump path: %s\\%s.dmp\n", dumpPath, minidumpId);
 		return succeeded;
 	}
 #else
@@ -48,23 +54,23 @@ private:
 #endif
 
 
-	std::unique_ptr<google_breakpad::ExceptionHandler> handler;
+	std::unique_ptr<google_breakpad::ExceptionHandler> handler_;
 
-	void GenDir(const std::filesystem::path& dumpPath)
+	static void GenDir(const std::filesystem::path& dumpPath)
 	{
-
 		// 현재 실행 디렉터리 하위에 dump 폴더가 없으면 생성
-		if (!std::filesystem::exists(dumpPath))
+		if (!exists(dumpPath))
 		{
-			std::filesystem::create_directory(dumpPath);
+			create_directory(dumpPath);
 		}
 	}
 };
 
-void psh::Utils::UseDump(const String& dumpPath)
+void psh::utils::UseDump(const std::wstring& dumpPath)
 {
+	// ReSharper disable once CppEntityAssignedButNoRead
 	static std::unique_ptr<CrashDump> crashDump = nullptr;
-	static std::atomic<bool> isRun{false};
+	static std::atomic isRun{false};
 
 	if (isRun.load(std::memory_order::acquire))
 	{

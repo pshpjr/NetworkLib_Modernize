@@ -14,14 +14,16 @@
 
 //프로젝트 헤더
 #include "types.h"
-namespace psh::Utils
+#include <string>
+
+namespace psh::utils
 {
 	/// <summary>
 	/// 이거 호출 이후에 프로그램이 크래시가 나면 dump 파일이 생성됩니다.
 	///	한 번만 호출 가능
 	/// </summary>
 	/// <param name="dumpPath"></param>
-	void UseDump(const String& dumpPath);
+	void UseDump(const std::wstring& dumpPath);
 }
 
 
