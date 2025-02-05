@@ -1,14 +1,12 @@
-# YourProject/tests/CMakeLists.txt
+# tests/CMakeLists.txt
 
 
-# �׽�Ʈ ���� ����
 add_executable(tests
-    main.cpp
+        main.cpp
+        LoggerTest.h
 )
 
 
-
-# �׽�Ʈ ��� ���̺귯�� ����
 target_link_libraries(tests PRIVATE NetLib)
 
 enable_testing()
@@ -18,6 +16,3 @@ target_link_libraries(tests PRIVATE GTest::gtest GTest::gtest_main GTest::gmock 
 
 add_test(AllTestsInMain tests)
 
-# CTest ���
-#enable_testing()
-#add_test(NAME YourLibraryTests COMMAND tests)
