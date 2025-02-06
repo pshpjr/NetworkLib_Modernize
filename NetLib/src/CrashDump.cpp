@@ -2,8 +2,10 @@
 #include "CrashDump.h"
 
 #include <atomic>
+#include <basic.hpp>
 #include <filesystem>
 #include <iostream>
+#include <loguru.hpp>
 #include <string>
 
 #ifdef _WIN32
@@ -19,7 +21,7 @@ public:
 	explicit CrashDump(const std::wstring& dumpPath)
 	{
 		std::filesystem::path path(dumpPath);
-
+		std::cout << path.string() << std::endl;
 		GenDir(path);
 #ifdef _WIN32
 		handler_ = std::make_unique<google_breakpad::ExceptionHandler>(
@@ -42,7 +44,9 @@ private:
 		UNREFERENCED_PARAMETER(context);
 		UNREFERENCED_PARAMETER(exinfo);
 		UNREFERENCED_PARAMETER(assertion);
+
 		wprintf(L"Dump path: %s\\%s.dmp\n", dumpPath, minidumpId);
+
 		return succeeded;
 	}
 #else

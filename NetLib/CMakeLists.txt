@@ -7,18 +7,21 @@ project(NetLib LANGUAGES CXX)
 
 add_library(NetLib STATIC
         include/Network/DefaultHandlerAllocator.h
+        include/Init.h
+
 )
 
 target_sources(NetLib
         PRIVATE
         "src/Allocator.cpp"
         "src/CrashDump.cpp"
+        "src/Init.cpp"
 )
 # Specify the required Boost components
 find_package(Boost REQUIRED COMPONENTS asio)
 find_package(Boost REQUIRED COMPONENTS system)
-find_package(boost_stacktrace_basic CONFIG REQUIRED)
 find_package(unofficial-breakpad REQUIRED)
+find_package(cpptrace CONFIG REQUIRED)
 
 
 if (NOT Boost_FOUND)
@@ -26,7 +29,14 @@ if (NOT Boost_FOUND)
 endif ()
 
 target_compile_features(NetLib PUBLIC cxx_std_20)
-
+if (WIN32)
+    add_custom_command(
+            TARGET NetLib POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:cpptrace::cpptrace>
+            $<TARGET_FILE_DIR:NetLib>
+    )
+endif ()
 
 #####loguru lib setting
 
@@ -49,5 +59,4 @@ target_link_libraries(NetLib PUBLIC loguru::loguru)
 target_link_libraries(NetLib PUBLIC Boost::system)
 target_link_libraries(NetLib PUBLIC Boost::asio)
 target_link_libraries(NetLib PUBLIC unofficial::breakpad::libbreakpad unofficial::breakpad::libbreakpad_client)
-target_link_libraries(NetLib PRIVATE Boost::stacktrace_basic)
-
+target_link_libraries(NetLib PRIVATE cpptrace::cpptrace)

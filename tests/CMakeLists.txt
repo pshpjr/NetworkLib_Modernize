@@ -3,7 +3,6 @@
 
 add_executable(tests
         main.cpp
-        LoggerTest.h
 )
 
 
