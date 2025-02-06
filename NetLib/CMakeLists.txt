@@ -6,7 +6,8 @@ cmake_minimum_required(VERSION 3.28)
 project(NetLib LANGUAGES CXX)
 
 add_library(NetLib STATIC
-        include/Network/DefaultHandlerAllocator.h)
+        include/Network/DefaultHandlerAllocator.h
+)
 
 target_sources(NetLib
         PRIVATE
@@ -14,8 +15,11 @@ target_sources(NetLib
         "src/CrashDump.cpp"
 )
 # Specify the required Boost components
+find_package(Boost REQUIRED COMPONENTS asio)
 find_package(Boost REQUIRED COMPONENTS system)
+find_package(boost_stacktrace_basic CONFIG REQUIRED)
 find_package(unofficial-breakpad REQUIRED)
+
 
 if (NOT Boost_FOUND)
     message(FATAL_ERROR "Boost not found")
@@ -41,8 +45,9 @@ target_include_directories(NetLib PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(NetLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 target_include_directories(NetLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(NetLib PRIVATE loguru::loguru)
+target_link_libraries(NetLib PUBLIC loguru::loguru)
 target_link_libraries(NetLib PUBLIC Boost::system)
 target_link_libraries(NetLib PUBLIC Boost::asio)
 target_link_libraries(NetLib PUBLIC unofficial::breakpad::libbreakpad unofficial::breakpad::libbreakpad_client)
+target_link_libraries(NetLib PRIVATE Boost::stacktrace_basic)
 

@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
+#include "LoggerTest.h"
 
 namespace
 {
@@ -22,7 +23,7 @@ namespace
 
 	TEST_F(Test1, plus_p)
 	{
-		EXPECT_EQ(2, 1+1);
+		EXPECT_EQ(2, 1 + 1);
 	}
 } // namespace
 
