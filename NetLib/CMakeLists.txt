@@ -7,6 +7,7 @@ project(NetLib LANGUAGES CXX)
 
 add_library(NetLib STATIC
         include/Network/DefaultHandlerAllocator.h
+        include/Network/Session.h
         include/Init.h
 
 )
