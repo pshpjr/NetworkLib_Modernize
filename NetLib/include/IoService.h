@@ -113,22 +113,60 @@ namespace psh::network
         void StartRead(std::shared_ptr<SessionType> session) {
             auto& socket = session->GetSocket();
             auto& buffer = session->readBuffer_;
-            
-            socket.async_read_some(
-                boost::asio::buffer(buffer),
-                [this, session](
-                    const boost::system::error_code& ec,
-                    std::size_t length)
-                {
-                    if (!ec) {
-                        session->OnReceive(std::vector<uint8_t>(
-                            session->readBuffer_.begin(),
-                            session->readBuffer_.begin() + length));
-                        StartRead(session);
-                    } else {
-                        HandleError(session, ec);
-                    }
-                });
+            auto& readPos = session->readPos_;
+
+            // 먼저 헤더를 읽음
+            if (readPos < sizeof(PacketHeader)) {
+                socket.async_read_some(
+                    boost::asio::buffer(buffer.data() + readPos, 
+                                      sizeof(PacketHeader) - readPos),
+                    [this, session](const boost::system::error_code& ec, std::size_t length)
+                    {
+                        if (!ec) {
+                            session->readPos_ += length;
+                            if (session->readPos_ >= sizeof(PacketHeader)) {
+                                // 헤더를 다 읽었으면 패킷 크기만큼 버퍼 확장
+                                auto header = reinterpret_cast<PacketHeader*>(session->readBuffer_.data());
+                                session->readBuffer_.resize(sizeof(PacketHeader) + header->size);
+                            }
+                            StartRead(session);
+                        } else {
+                            HandleError(session, ec);
+                        }
+                    });
+            }
+            // 헤더를 다 읽었으면 나머지 데이터를 읽음
+            else {
+                auto header = reinterpret_cast<PacketHeader*>(buffer.data());
+                auto totalSize = sizeof(PacketHeader) + header->size;
+                
+                socket.async_read_some(
+                    boost::asio::buffer(buffer.data() + readPos, 
+                                      totalSize - readPos),
+                    [this, session](const boost::system::error_code& ec, std::size_t length)
+                    {
+                        if (!ec) {
+                            session->readPos_ += length;
+                            auto& buffer = session->readBuffer_;
+                            auto header = reinterpret_cast<PacketHeader*>(buffer.data());
+                            auto totalSize = sizeof(PacketHeader) + header->size;
+
+                            // 패킷을 모두 읽었으면 처리
+                            if (session->readPos_ >= totalSize) {
+                                session->OnReceive(header->type,
+                                    buffer.data() + sizeof(PacketHeader),
+                                    header->size);
+                                
+                                // 다음 패킷을 위해 버퍼 초기화
+                                session->readPos_ = 0;
+                                buffer.resize(sizeof(PacketHeader));
+                            }
+                            StartRead(session);
+                        } else {
+                            HandleError(session, ec);
+                        }
+                    });
+            }
         }
 
         void HandleError(std::shared_ptr<SessionType> session,

@@ -23,6 +23,7 @@ find_package(Boost REQUIRED COMPONENTS asio)
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(unofficial-breakpad REQUIRED)
 find_package(cpptrace CONFIG REQUIRED)
+find_package(Flatbuffers CONFIG REQUIRED)
 
 
 if (NOT Boost_FOUND)
