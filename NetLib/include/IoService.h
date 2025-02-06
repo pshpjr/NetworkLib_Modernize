@@ -38,20 +38,13 @@ namespace psh::network
 
             work_guard_.reset();
             ioContext_.stop();
-            
-            for (auto& thread : threadPool_) {
-                if (thread.joinable()) {
-                    thread.join();
-                }
-            }
             threadPool_.clear();
         }
 
         // 새로운 세션 생성 및 비동기 연결
         std::shared_ptr<SessionType> ConnectSession(
             const std::string& host, 
-            uint16_t port,
-            std::function<void(std::shared_ptr<SessionType>)> onConnected = nullptr)
+            uint16_t port)
         {
             auto session = std::make_shared<SessionType>();
             session->SetIoContext(ioContext_);
@@ -62,16 +55,13 @@ namespace psh::network
             boost::asio::async_connect(
                 session->GetSocket(),
                 endpoints,
-                [this, session, onConnected](
+                [this, session](
                     const boost::system::error_code& ec,
                     const boost::asio::ip::tcp::endpoint&)
                 {
                     if (!ec) {
                         sessions_.insert({session->GetSocket().native_handle(), session});
                         session->OnConnect();
-                        if (onConnected) {
-                            onConnected(session);
-                        }
                         StartRead(session);
                     } else {
                         session->OnError(ec);
@@ -125,8 +115,13 @@ namespace psh::network
                         if (!ec) {
                             session->readPos_ += length;
                             if (session->readPos_ >= sizeof(PacketHeader)) {
-                                // 헤더를 다 읽었으면 패킷 크기만큼 버퍼 확장
+                                // 헤더를 다 읽었으면 유효성 검사 후 버퍼 확장
                                 auto header = reinterpret_cast<PacketHeader*>(session->readBuffer_.data());
+                                if (!ValidateHeader(*header)) {
+                                    HandleError(session, boost::system::errc::make_error_code(
+                                        boost::system::errc::message_size));
+                                    return;
+                                }
                                 session->readBuffer_.resize(sizeof(PacketHeader) + header->size);
                             }
                             StartRead(session);

@@ -9,6 +9,7 @@ add_library(NetLib STATIC
         include/Network/DefaultHandlerAllocator.h
         include/Network/Session.h
         include/Init.h
+        include/IoService.h
 
 )
 
@@ -17,6 +18,8 @@ target_sources(NetLib
         "src/Allocator.cpp"
         "src/CrashDump.cpp"
         "src/Init.cpp"
+        "src/Session.cpp"
+        "src/Network/Session.cpp"
 )
 # Specify the required Boost components
 find_package(Boost REQUIRED COMPONENTS asio)
