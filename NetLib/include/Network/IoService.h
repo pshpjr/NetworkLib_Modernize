@@ -14,24 +14,62 @@ namespace psh::network
     class Session;
     using SessionFactory = std::function<std::shared_ptr<Session>(boost::asio::io_context::executor_type executor)>;
 
+    /**
+     * @brief 비동기 네트워크 I/O 작업을 관리하는 서비스 클래스
+     * 
+     * 멀티스레드 환경에서 세션들의 비동기 I/O 작업을 처리하고
+     * 새로운 연결의 수락 및 관리를 담당합니다.
+     */
     class IoService
     {
     public:
+        /**
+         * @brief IoService 생성자
+         * @param threads 내부 작업자 스레드 풀의 크기
+         * @param factory 새로운 세션 생성을 위한 팩토리 함수
+         */
         explicit IoService(int threads, SessionFactory factory)
             : factory_(std::move(factory)), threads_(threads) {}
 
         ~IoService();
 
+        /**
+         * @brief 서비스 시작
+         * 
+         * 작업자 스레드들을 생성하고 I/O 컨텍스트 실행을 시작합니다.
+         * 이미 실행 중인 경우 아무 동작도 하지 않습니다.
+         */
         void Start();
 
+        /**
+         * @brief 서비스 중지
+         * 
+         * 모든 I/O 작업을 중단하고 작업자 스레드들을 정리합니다.
+         * 진행 중인 모든 세션들이 종료됩니다.
+         */
         void Stop();
 
-        // 새로운 세션 생성 및 비동기 연결
+        /**
+         * @brief 새로운 클라이언트 세션 생성 및 연결
+         * @param host 대상 서버의 호스트명 또는 IP 주소
+         * @param port 대상 서버의 포트 번호
+         * @param factory 세션 생성을 위한 팩토리 함수
+         * @return 생성된 세션의 공유 포인터
+         */
         std::shared_ptr<Session> ConnectSession(const std::string& host, uint16_t port, SessionFactory factory);
 
-        // 리스너 시작
+        /**
+         * @brief 지정된 포트에서 새로운 연결 수락 시작
+         * @param port 리스닝할 포트 번호
+         */
         void StartAccept(uint16_t port);
 
+        /**
+         * @brief 서비스 실행 상태 확인
+         * @return 서비스가 실행 중이면 true
+         * 
+         * 이 메서드는 스레드로부터 안전합니다.
+         */
         bool IsRunning() const;
 
     private:
@@ -50,6 +88,8 @@ namespace psh::network
         SessionFactory factory_;
         std::unordered_map<std::size_t, std::shared_ptr<Session>> sessions_;
         int threads_;
+        // 서비스의 실행 상태를 나타내는 atomic 플래그
+        // Start()에서 설정되고 Stop()에서 해제됩니다.
         std::atomic_flag running_;
     };
 }
