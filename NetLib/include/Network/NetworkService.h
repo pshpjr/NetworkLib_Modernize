@@ -1,36 +1,37 @@
 #ifndef NETWORKSERVICE_H
 #define NETWORKSERVICE_H
 
-#include "IoService.h"
 #include <memory>
-#include <string>
+#include "SessionManager.h"
+#include "NetworkConnector.h"
+#include "NetworkAcceptor.h"
 
 namespace psh::network
 {
+    class IoService;
+    class Session;
+    using SessionFactory = std::function<std::shared_ptr<Session>(boost::asio::io_context::executor_type executor)>;
+
     class NetworkService
     {
     public:
-        explicit NetworkService(IoService& ioService);
+        explicit NetworkService(int threads, SessionFactory factory);
+        ~NetworkService();
+
+        void Start();
+        void Stop();
         
-        // TCP 리스너 시작
-        bool StartTcpListener(const std::string& address, uint16_t port);
-        
-        // TCP 클라이언트 연결
-        bool ConnectTcp(const std::string& address, uint16_t port);
-        
-        // UDP 소켓 바인딩
-        bool BindUdp(const std::string& address, uint16_t port);
-        
-        // 비동기 송신
-        void AsyncSend(const std::vector<uint8_t>& data);
-        
-        // 비동기 수신 콜백 설정
-        void SetReceiveCallback(std::function<void(const std::vector<uint8_t>&)> callback);
-        
+        std::shared_ptr<Session> ConnectSession(const std::string& host, uint16_t port, SessionFactory factory);
+        void StartAccept(uint16_t port);
+        bool IsRunning() const;
+
     private:
-        IoService& ioService_;
-        // TCP/UDP 소켓, 세션 관리자 등을 여기에 추가
+        std::unique_ptr<IoService> ioService_;
+        SessionManager sessionManager_;
+        NetworkConnector connector_;
+        NetworkAcceptor acceptor_;
+        SessionFactory factory_;
     };
 }
 
-#endif //NETWORKSERVICE_H
+#endif

@@ -6,8 +6,6 @@
 #define IOSERVICE_H
 
 #include <boost/asio.hpp>
-#include <functional>
-#include "SessionManager.h"
 
 namespace psh::network
 {
@@ -57,33 +55,14 @@ namespace psh::network
          * @param factory 세션 생성을 위한 팩토리 함수
          * @return 생성된 세션의 공유 포인터
          */
-        std::shared_ptr<Session> ConnectSession(const std::string& host, uint16_t port, SessionFactory factory);
-
-        /**
-         * @brief 지정된 포트에서 새로운 연결 수락 시작
-         * @param port 리스닝할 포트 번호
-         */
-        void StartAccept(uint16_t port);
-
-        /**
-         * @brief 서비스 실행 상태 확인
-         * @return 서비스가 실행 중이면 true
-         */
-        bool IsRunning() const;
+        boost::asio::io_context& GetContext() { return ioContext_; }
+        bool IsRunning() const { return !ioContext_.stopped(); }
 
     private:
-        void DoAccept();
-
-        void HandleError(std::shared_ptr<Session> session,
-                         const boost::system::error_code& ec);
-
         boost::asio::io_context ioContext_;
         std::vector<std::jthread> threadPool_;
         std::unique_ptr<boost::asio::executor_work_guard<
             boost::asio::io_context::executor_type>> workGuard_;
-        std::unique_ptr<boost::asio::ip::tcp::acceptor> acceptor_;
-        SessionFactory factory_;
-        SessionManager sessionManager_;
         int threads_;
         // 서비스의 실행 상태를 나타내는 atomic 플래그
         // Start()에서 설정되고 Stop()에서 해제됩니다.
