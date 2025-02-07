@@ -6,8 +6,8 @@
 #define IOSERVICE_H
 
 #include <boost/asio.hpp>
-#include <unordered_map>
 #include <functional>
+#include "SessionManager.h"
 
 namespace psh::network
 {
@@ -74,8 +74,6 @@ namespace psh::network
     private:
         void DoAccept();
 
-        void StartRead(std::shared_ptr<Session> session);
-
         void HandleError(std::shared_ptr<Session> session,
                          const boost::system::error_code& ec);
 
@@ -85,7 +83,7 @@ namespace psh::network
             boost::asio::io_context::executor_type>> workGuard_;
         std::unique_ptr<boost::asio::ip::tcp::acceptor> acceptor_;
         SessionFactory factory_;
-        std::unordered_map<std::size_t, std::shared_ptr<Session>> sessions_;
+        SessionManager sessionManager_;
         int threads_;
         // 서비스의 실행 상태를 나타내는 atomic 플래그
         // Start()에서 설정되고 Stop()에서 해제됩니다.

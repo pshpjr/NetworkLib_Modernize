@@ -62,7 +62,7 @@ namespace psh::network
             {
                 if (!ec)
                 {
-                    sessions_.insert({session->GetSocket().native_handle(), session});
+                    sessionManager_.RegisterSession(session->GetSocket().native_handle(), session);
                     session->OnConnect();
                     StartRead(std::move(session));
                 }
@@ -104,7 +104,7 @@ namespace psh::network
                     LOG_F(INFO, "Accepted. IP : %s Port : %d",
                           session->GetSocket().remote_endpoint().address().to_string().c_str(),
                           session->GetSocket().remote_endpoint().port());
-                    sessions_.insert({session->GetSocket().native_handle(), session});
+                    sessionManager_.RegisterSession(session->GetSocket().native_handle(), session);
                     session->OnConnect();
                     StartRead(std::move(session));
                 }
@@ -117,7 +117,7 @@ namespace psh::network
     {
         if (session->HandleError(ec))
         {
-            sessions_.erase(session->GetSocket().native_handle());
+            sessionManager_.UnregisterSession(session->GetSocket().native_handle());
         }
     }
 }
