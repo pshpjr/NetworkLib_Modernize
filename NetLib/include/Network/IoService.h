@@ -16,9 +16,7 @@ namespace psh::network
 
     /**
      * @brief 비동기 네트워크 I/O 작업을 관리하는 서비스 클래스
-     * 
-     * 멀티스레드 환경에서 세션들의 비동기 I/O 작업을 처리하고
-     * 새로운 연결의 수락 및 관리를 담당합니다.
+     * 멀티스레드로 동작함.
      */
     class IoService
     {
@@ -27,6 +25,8 @@ namespace psh::network
          * @brief IoService 생성자
          * @param threads 내부 작업자 스레드 풀의 크기
          * @param factory 새로운 세션 생성을 위한 팩토리 함수
+         * std::function<std::shared_ptr<Session>(boost::asio::io_context::executor_type executor)>
+         *
          */
         explicit IoService(int threads, SessionFactory factory)
             : factory_(std::move(factory)), threads_(threads) {}
@@ -46,6 +46,7 @@ namespace psh::network
          * 
          * 모든 I/O 작업을 중단하고 작업자 스레드들을 정리합니다.
          * 진행 중인 모든 세션들이 종료됩니다.
+         * TODO: 안전하게 종료
          */
         void Stop();
 
@@ -67,8 +68,6 @@ namespace psh::network
         /**
          * @brief 서비스 실행 상태 확인
          * @return 서비스가 실행 중이면 true
-         * 
-         * 이 메서드는 스레드로부터 안전합니다.
          */
         bool IsRunning() const;
 
@@ -83,7 +82,7 @@ namespace psh::network
         boost::asio::io_context ioContext_;
         std::vector<std::jthread> threadPool_;
         std::unique_ptr<boost::asio::executor_work_guard<
-            boost::asio::io_context::executor_type>> work_guard_;
+            boost::asio::io_context::executor_type>> workGuard_;
         std::unique_ptr<boost::asio::ip::tcp::acceptor> acceptor_;
         SessionFactory factory_;
         std::unordered_map<std::size_t, std::shared_ptr<Session>> sessions_;

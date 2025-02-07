@@ -4,89 +4,91 @@
 #include <boost/asio.hpp>
 #include <memory>
 #include <vector>
-#include <flatbuffers/flatbuffers.h>
+#include <third_party/concurrentqueue.h>
 
-namespace psh::network 
+#include "HandlerMemory.h"
+
+
+namespace psh::network
 {
-    template<typename SessionType>
+    class Session;
+
+    namespace details
+    {
+        /**
+         * @brief 세션 recv 계속 걸어두는 함수
+         * @details 멤버 함수로 만들면 재귀호출하면서 어쩔 수 없는 shared_ptr 복사가 생김
+         * 지금처럼 만들면 move로 넘길 수 있음
+         */
+        void StartRead(std::shared_ptr<Session> session);
+    }
+
+    class SendBuffer;
     class IoService;
 
-    struct PacketHeader {
-        uint32_t size;
-        uint16_t type;
-    };
+    using executor_t = boost::asio::io_service::executor_type;
 
-    class SessionBase 
+    /**
+     * @brief 컨텐츠에서 상속받아 사용
+     */
+    class Session : public std::enable_shared_from_this<Session>
     {
     public:
-        virtual ~SessionBase() = default;
-        virtual void OnConnect() = 0;
-        virtual void OnDisconnect() = 0;
-        virtual void OnReceive(uint16_t type, const uint8_t* data, size_t length) = 0;
-        virtual void OnError(const boost::system::error_code& error) = 0;
-
-    protected:
-        // Send는 IoService를 통해서만 가능
-        virtual void Send(uint16_t type, const flatbuffers::FlatBufferBuilder& fbb) = 0;
-    };
-
-    template<typename Derived>
-    class Session : public SessionBase, 
-                   public std::enable_shared_from_this<Session<Derived>> 
-    {
-    public:
-        Session() : readBuffer_(sizeof(PacketHeader)) {}
+        Session(const executor_t& executor);
         virtual ~Session() = default;
-        
-        // CRTP 패턴을 통한 실제 구현체 접근
-        Derived& GetImpl() { return static_cast<Derived&>(*this); }
+
+        /**
+         * @brief 해당 세션 연결 끊고 싶을 때 호출
+         * 호출 후 send / recv 안 옴.
+         */
+        void Disconnect();
+
+        void Send(std::shared_ptr<SendBuffer> buffer);
 
     protected:
-        void Send(uint16_t type, const flatbuffers::FlatBufferBuilder& fbb) override {
-            if (!sendInProgress_) {
-                SendImpl(type, fbb);
-            } else {
-                pendingSends_.emplace(type, std::vector<uint8_t>(fbb.GetBufferPointer(), 
-                    fbb.GetBufferPointer() + fbb.GetSize()));
-            }
-        }
+        virtual void OnConnect() {};
+
+        /**
+         * @brief 세션 연결 끊어질 때 1회만 호출됩니다.
+         */
+        virtual void OnDisconnect() {};
+        /**
+         * @brief 세션 연결 끊어질 때 1회만 호출됩니다.
+         * @param error boost 에러 코드
+         */
+        virtual void OnError(const boost::system::error_code& error) {};
+        virtual void OnReceivePacket(const char* data, size_t length, uint16_t type) {};
 
     private:
-        template<typename T>
+        friend void details::StartRead(std::shared_ptr<Session> session);
+
+        void SetOwner(IoService* ptr);
+        bool HandleError(const boost::system::error_code& error);
+        void OnRecv(int bytes);
         friend class IoService;
 
-        boost::asio::ip::tcp::socket& GetSocket() { return socket_; }
+        boost::asio::ip::tcp::socket& GetSocket();
+        void RealSend();
+        void TrySend();
+        bool CanSend();
+        bool Disconnected();
 
-        void SetIoContext(boost::asio::io_context& ioContext) {
-            socket_ = boost::asio::ip::tcp::socket(ioContext);
-        }
+        uint16_t RemainRead() const;
 
-        void SendImpl(uint16_t type, const flatbuffers::FlatBufferBuilder& fbb) {
-            PacketHeader header{static_cast<uint32_t>(fbb.GetSize()), type};
-            
-            std::vector<boost::asio::const_buffer> buffers;
-            buffers.push_back(boost::asio::buffer(&header, sizeof(header)));
-            buffers.push_back(boost::asio::buffer(fbb.GetBufferPointer(), fbb.GetSize()));
-            
-            sendInProgress_ = true;
-            boost::asio::async_write(socket_, buffers,
-                [this](const boost::system::error_code& ec, std::size_t) {
-                    sendInProgress_ = false;
-                    if (!ec && !pendingSends_.empty()) {
-                        auto [nextType, nextData] = std::move(pendingSends_.front());
-                        pendingSends_.pop();
-                        flatbuffers::FlatBufferBuilder fbb;
-                        fbb.PushBytes(nextData.data(), nextData.size());
-                        SendImpl(nextType, fbb);
-                    }
-                });
-        }
+        IoService* owner_;
 
-        boost::asio::ip::tcp::socket socket_{boost::asio::ip::tcp::socket::executor_type()};
-        std::vector<uint8_t> readBuffer_;
+        std::atomic<char> state_{0};
+        boost::asio::ip::tcp::socket socket_;
+        std::vector<char> readBuffer_;
         size_t readPos_{0};
-        bool sendInProgress_{false};
-        std::queue<std::pair<uint16_t, std::vector<uint8_t>>> pendingSends_;
+        size_t writePos_{0};
+        std::atomic<bool> sendInProgress_{false};
+        std::vector<std::shared_ptr<SendBuffer>> inProgressSends_;
+        moodycamel::ConcurrentQueue<std::shared_ptr<SendBuffer>> pendingSends_;
+
+        HandlerMemory writeHandler_;
+        HandlerMemory readHandler_;
+        //concurrency::concurrent_queue<std::shared_ptr<SendBuffer>> pendingSends_;
     };
 }
 

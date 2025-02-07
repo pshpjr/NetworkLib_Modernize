@@ -6,11 +6,14 @@ cmake_minimum_required(VERSION 3.28)
 project(NetLib LANGUAGES CXX)
 
 add_library(NetLib STATIC
-        include/Network/DefaultHandlerAllocator.h
+        include/Network/HandlerMemory.h
         include/Network/Session.h
         include/Init.h
-        include/IoService.h
-
+        include/Network/Session.h
+        include/Network/SendBuffer.cpp
+        include/Network/SendBuffer.h
+        include/Network/IoService.h
+        include/third_party/concurrentqueue.h
 )
 
 target_sources(NetLib
@@ -19,15 +22,13 @@ target_sources(NetLib
         "src/CrashDump.cpp"
         "src/Init.cpp"
         "src/Session.cpp"
-        "src/Network/Session.cpp"
+        "src/IoService.cpp"
 )
 # Specify the required Boost components
-find_package(Boost REQUIRED COMPONENTS asio)
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS asio system)
 find_package(unofficial-breakpad REQUIRED)
 find_package(cpptrace CONFIG REQUIRED)
 find_package(Flatbuffers CONFIG REQUIRED)
-
 
 if (NOT Boost_FOUND)
     message(FATAL_ERROR "Boost not found")
@@ -63,5 +64,5 @@ target_include_directories(NetLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(NetLib PUBLIC loguru::loguru)
 target_link_libraries(NetLib PUBLIC Boost::system)
 target_link_libraries(NetLib PUBLIC Boost::asio)
-target_link_libraries(NetLib PUBLIC unofficial::breakpad::libbreakpad unofficial::breakpad::libbreakpad_client)
+target_link_libraries(NetLib PRIVATE unofficial::breakpad::libbreakpad unofficial::breakpad::libbreakpad_client)
 target_link_libraries(NetLib PRIVATE cpptrace::cpptrace)
