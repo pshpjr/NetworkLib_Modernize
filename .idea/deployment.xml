@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData">
+    <serverData>
+      <paths name="Docker (ea1ab9fa-e0ca-4d4b-846d-cc47ebefc2fd)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="Docker (fbe4d102-4754-4230-bc4a-93eaf3ae2629)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="원격 호스트 (1) (9cc00177-5baa-42af-a5da-ca079757b52d)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/tmp.8AXH2XkVEb/NetworkLib_Modernize" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/out/build/linux-debug" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="원격 호스트 (16327d2d-114f-4474-895c-9c48f58745eb)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>
