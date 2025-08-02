@@ -28,7 +28,6 @@ target_sources(NetLib
 find_package(Boost REQUIRED COMPONENTS asio system)
 find_package(unofficial-breakpad REQUIRED)
 find_package(cpptrace CONFIG REQUIRED)
-find_package(Flatbuffers CONFIG REQUIRED)
 
 if (NOT Boost_FOUND)
     message(FATAL_ERROR "Boost not found")

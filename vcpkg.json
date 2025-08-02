@@ -5,7 +5,7 @@
     "boost-asio",
     "breakpad",
     "gtest",
-    "boost-stacktrace"
+    "cpptrace"
   ],
   "builtin-baseline": "10b7a178346f3f0abef60cecd5130e295afd8da4"
 }
