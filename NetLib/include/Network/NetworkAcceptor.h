@@ -1,9 +1,8 @@
 #ifndef NETWORKACCEPTOR_H
 #define NETWORKACCEPTOR_H
 
-#include <boost/asio.hpp>
-#include "Session.h"
 
+#include "IoService.h"
 namespace psh::network
 {
     class SessionManager;

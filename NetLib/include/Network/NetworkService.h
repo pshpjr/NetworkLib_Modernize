@@ -1,10 +1,12 @@
 #ifndef NETWORKSERVICE_H
 #define NETWORKSERVICE_H
 
-#include <memory>
-#include "SessionManager.h"
-#include "NetworkConnector.h"
 #include "NetworkAcceptor.h"
+#include "NetworkConnector.h"
+#include "SessionManager.h"
+
+#include <functional>
+#include <memory>
 
 namespace psh::network
 {

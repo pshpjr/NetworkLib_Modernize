@@ -14,6 +14,8 @@ add_library(NetLib STATIC
         include/Network/SendBuffer.h
         include/Network/IoService.h
         include/third_party/concurrentqueue.h
+        include/Logger.h
+
 )
 
 target_sources(NetLib
@@ -23,15 +25,14 @@ target_sources(NetLib
         "src/Init.cpp"
         "src/Session.cpp"
         "src/IoService.cpp"
+        "src/Logger.cpp"
 )
 # Specify the required Boost components
-find_package(Boost REQUIRED COMPONENTS asio system)
+find_package(boost_asio CONFIG REQUIRED)
 find_package(unofficial-breakpad REQUIRED)
 find_package(cpptrace CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 
-if (NOT Boost_FOUND)
-    message(FATAL_ERROR "Boost not found")
-endif ()
 
 target_compile_features(NetLib PUBLIC cxx_std_20)
 if (WIN32)
@@ -43,25 +44,14 @@ if (WIN32)
     )
 endif ()
 
-#####loguru lib setting
-
-include(FetchContent)
-FetchContent_Declare(LoguruGitRepo
-        GIT_REPOSITORY "https://github.com/emilk/loguru" # can be a filesystem path
-        GIT_TAG "master"
-)
-# set any loguru compile-time flags before calling MakeAvailable()
-set(LOGURU_WITH_STREAMS TRUE)
-FetchContent_MakeAvailable(LoguruGitRepo) # defines target 'loguru::loguru'
-#####
 
 #외부 라이브러리
 target_include_directories(NetLib PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(NetLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 target_include_directories(NetLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(NetLib PUBLIC loguru::loguru)
 target_link_libraries(NetLib PUBLIC Boost::system)
 target_link_libraries(NetLib PUBLIC Boost::asio)
 target_link_libraries(NetLib PRIVATE unofficial::breakpad::libbreakpad unofficial::breakpad::libbreakpad_client)
-target_link_libraries(NetLib PRIVATE cpptrace::cpptrace)
+target_link_libraries(NetLib PUBLIC cpptrace::cpptrace)
+target_link_libraries(NetLib PUBLIC spdlog::spdlog)

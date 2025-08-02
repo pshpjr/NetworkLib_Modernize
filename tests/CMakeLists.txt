@@ -1,17 +1,28 @@
 # tests/CMakeLists.txt
 
+include(FetchContent)
 
-add_executable(tests
-        main.cpp
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/heads/main.zip
 )
 
+# Windows에서 CRT 설정 문제 방지
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-target_link_libraries(tests PRIVATE NetLib)
+FetchContent_MakeAvailable(googletest)
+
+add_executable(tests main.cpp)
+
+target_link_libraries(tests
+        PRIVATE
+        NetLib
+        gtest
+        gtest_main
+)
+
+target_compile_features(tests PUBLIC cxx_std_20)
 
 enable_testing()
 
-find_package(GTest CONFIG REQUIRED)
-target_link_libraries(tests PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
-
-add_test(AllTestsInMain tests)
-
+add_test(NAME AllTestsInMain COMMAND tests)

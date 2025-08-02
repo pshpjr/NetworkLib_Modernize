@@ -1,9 +1,7 @@
 #ifndef NETWORKCONNECTOR_H
 #define NETWORKCONNECTOR_H
 
-#include <boost/asio.hpp>
 #include <string>
-#include "Session.h"
 
 namespace psh::network
 {

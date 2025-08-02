@@ -5,7 +5,6 @@
 #include <basic.hpp>
 #include <filesystem>
 #include <iostream>
-#include <loguru.hpp>
 #include <string>
 
 #ifdef _WIN32
@@ -30,7 +29,7 @@ public:
 #else
 		descriptor = std::make_unique<google_breakpad::MinidumpDescriptor>(path.c_str());
 
-		handler = std::make_unique<google_breakpad::ExceptionHandler>(
+		handler_ = std::make_unique<google_breakpad::ExceptionHandler>(
 			*descriptor, nullptr, DumpCallback, nullptr, true, -1);
 
 #endif

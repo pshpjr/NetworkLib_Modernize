@@ -4,8 +4,6 @@
 
 #include "Network/IoService.h"
 
-#include <loguru.hpp>
-
 #include "Network/Session.h"
 
 namespace psh::network

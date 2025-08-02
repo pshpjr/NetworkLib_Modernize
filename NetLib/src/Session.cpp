@@ -1,6 +1,8 @@
 #include "Network/Session.h"
-#include <loguru.hpp>
+
+#include "Logger.h"
 #include "Network/SendBuffer.h"
+
 
 namespace psh::network
 {
@@ -66,7 +68,7 @@ namespace psh::network
                                          //내가 끊어서 발생하지 않은 비정상 종료라면 알림
                                          if (ec && !(disconnected & kRequestDisconnect))
                                          {
-                                             LOG_F(ERROR, "Send failed: %u", ec.value());
+                                             logger::Error("Send failed: %u", ec.value());
                                              self->OnError(ec);
                                              self->OnDisconnect();
                                              return;

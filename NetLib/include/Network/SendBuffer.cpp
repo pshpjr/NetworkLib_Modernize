@@ -30,8 +30,12 @@ namespace psh::network
 
     std::shared_ptr<SendBuffer> SendBuffer::Alloc()
     {
-        //TODO: 풀링
-        return std::make_shared<SendBuffer>();
+		if (auto pBuf = new SendBuffer(); pBuf)
+		{
+			return std::shared_ptr<SendBuffer>(pBuf);
+		}
+		throw std::bad_alloc();
+    	return nullptr;
     }
 
     uint16_t SendBuffer::PacketSize() const

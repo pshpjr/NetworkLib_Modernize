@@ -6,7 +6,6 @@
 #define SENDBUFFER_H
 #include <array>
 #include <memory>
-#include <vector>
 
 namespace psh::network
 {
@@ -75,7 +74,7 @@ namespace psh::network
         uint8_t* PacketPtr();
 
         Packet buffer_;
-        constexpr int bufferSize_ = kMaxPacketSize;
+    	int bufferSize_ = kMaxPacketSize;
         int dataSize_ = 0;
     };
 }

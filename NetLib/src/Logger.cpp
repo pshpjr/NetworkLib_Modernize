@@ -5,7 +5,6 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/dist_sink.h>
 #include <spdlog/sinks/null_sink.h>
-#include <spdlog/details/thread_pool.h>
 #include <spdlog/async.h> // 비동기 로거를 위한 헤더
 
 namespace psh::logger
@@ -61,16 +60,16 @@ namespace psh::logger
         {
             return logger_;
         }
-
+    	~Logger()
+		{
+			// 프로그램 종료 시 로거 자원 정리
+			if (logger_)
+			{
+				logger_->flush();
+			}
+		}
     private:
-        ~Logger()
-        {
-            // 프로그램 종료 시 로거 자원 정리
-            if (logger_)
-            {
-                logger_->flush();
-            }
-        }
+
 
         std::shared_ptr<spdlog::logger> logger_{};
         std::shared_ptr<spdlog::details::thread_pool> pool_{};

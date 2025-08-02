@@ -1,7 +1,10 @@
-#include <iostream>
-
 #include "gtest/gtest.h"
 
+#include <iostream>
+#include <spdlog/spdlog.h>
+
+
+#include "Logger.h"
 namespace
 {
 	class Test1 : public testing::Test
@@ -28,6 +31,8 @@ namespace
 
 int main(int argc, char** argv)
 {
+	psh::logger::Error("test :{}","t");
+
 	testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }

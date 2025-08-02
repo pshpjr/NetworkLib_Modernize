@@ -5,7 +5,10 @@
 #ifndef IOSERVICE_H
 #define IOSERVICE_H
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_context.hpp>
+#include <functional>
+#include <memory>
+#include <thread>
 
 namespace psh::network
 {
@@ -67,6 +70,7 @@ namespace psh::network
         // 서비스의 실행 상태를 나타내는 atomic 플래그
         // Start()에서 설정되고 Stop()에서 해제됩니다.
         std::atomic_flag running_;
+    	SessionFactory factory_;
     };
 }
 
